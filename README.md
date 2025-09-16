@@ -72,40 +72,69 @@ In this experiment, we use **SystemVerilog OOP concepts** to model an APB packet
 
 ### APB Packet Class (`apb_packet.sv`)  
 ```systemverilog
-// Skeleton code for APB Packet class
-class apb_packet;
+module apb_packet_demo;    
 
-  // Declare properties (e.g., address, data, control signals)
+  // Base class: APB Packet   
+  class APB_Packet;     
+    rand bit [31:0] addr;   // Address     
+    rand bit [31:0] data;   // Data     
+    rand bit        wr;     // Write(1)/Read(0)     
+    string resp;            // Response      
 
-  // Constructor
+    // Constructor     
+    function new(bit [31:0] addr = 0, bit [31:0] data = 0, bit wr = 0);       
+      this.addr = addr;       
+      this.data = data;       
+      this.wr   = wr;       
+      this.resp = "OK";     
+    endfunction     
 
-  // Method to display packet
-endclass
+    // Display method     
+    function void display();       
+      $display("APB Packet => Addr: %h, Data: %h, WR: %0b, Resp: %s",                  
+                addr, data, wr, resp);     
+    endfunction   
+  endclass    
+
+  // Derived class: Write Packet   
+  class APB_WritePacket extends APB_Packet;     
+    function new(bit [31:0] addr, bit [31:0] data);       
+      super.new(addr, data, 1); // Write = 1     
+    endfunction   
+  endclass  
+
+  // Derived class: Read Packet    
+  class APB_ReadPacket extends APB_Packet;     
+    function new(bit [31:0] addr);       
+      super.new(addr, 0, 0); // Write = 0     
+endfunction   
+  endclass  
+
+
 ```
 
 ### APB Packet Class (`apb_tb.sv`) 
 ```systemverilog
-// Skeleton code for APB Packet Testbench
-module apb_tb;
+// Test program   
+  initial begin     
+    APB_Packet p; // Base class handle      
 
-  // Declare object of apb_packet class
+    // Create Write Packet (use ' or ::new)    
+    p = APB_WritePacket::new(32'h1000, 32'hABCD1234);     
+    p.display();      
 
-  initial begin
-    // Create object
-    // Initialize values
-    // Call display method
-  end
+    // Create Read Packet     
+    p = APB_ReadPacket::new(32'h2000);     
+    p.display();   
+  end  
 
 endmodule
 ```
 ---
 ### Simulation Output
 
-The simulation is carried out using ModelSim 2020.1.
 
-Output log will show the APB packet details created using class objects.
-
-(Insert console output screenshot here after simulation)
+<img width="1920" height="1080" alt="Screenshot 2025-09-16 084426" src="https://github.com/user-attachments/assets/f82afdf7-a90a-4373-914b-d62f19d3e1e0" />
 
 ---
 
